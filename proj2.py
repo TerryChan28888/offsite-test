@@ -1,18 +1,14 @@
-
 # author: Chan Ho Yin
-# student_id: 20311091
+
 import numpy as np
 from scipy import sparse
-import nltk
 import pandas as pd
 from sklearn import datasets, svm
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
 from statistics import mean
-from numpy import linspace, zeros
 import jieba
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-from sklearn.linear_model import LogisticRegression
 
 jieba.set_dictionary('data/dict.txt.big')
 def tokenize(text):
@@ -71,7 +67,6 @@ def read_data(file_name, vocab=None):
     vocab_dict = dict(zip(vocab, range(len(vocab))))
 
     data_matrix = get_bagofwords(df['words'], vocab_dict)
-    # print(data_matrix)
     return df['id'], df['tags'], data_matrix, vocab
 
 def read_test_data(file_name, vocab=None):
@@ -89,7 +84,6 @@ def read_test_data(file_name, vocab=None):
     vocab_dict = dict(zip(vocab, range(len(vocab))))
 
     data_matrix = get_bagofwords(df['words'], vocab_dict)
-    # print(data_matrix)
     return df['id'], data_matrix
 
 
@@ -98,7 +92,7 @@ if __name__ == '__main__':
 
 
 
-    # seg_list = jieba.cut("英格蘭足總盃第三圈今晨重賽，貴為英超勁旅的利物浦上場被乙組仔埃克斯特尷尬逼和，多獲一次機會的紅軍不敢再有差池。", cut_all=False)
+    # to test jieba.cut
     # print(tokenize("多獲一次機會的紅軍不敢再有差池"))
     # print("default mode: "+"/".join(seg_list))
 
@@ -112,51 +106,18 @@ if __name__ == '__main__':
 
 
     # currently, the best performance
-    # clf = SVC(kernel='linear', C=0.0023)
-    # clf.fit(train_data_matrix, train_data_label)  # there is clf.predict()
-    # y_hat = clf.predict(test_data_matrix)
+    clf = SVC(kernel='linear', C=0.001)
+    clf.fit(train_data_matrix, train_data_label)  # there is clf.predict()
+    y_hat = clf.predict(test_data_matrix)
 
     # this is for training error
-    # linear_x_axis_1 = linspace(0.5, 2, num=5)
-    # linear_y_axis_1 = zeros(10)
-    # print("cross validation")
-    # for i in range(len(linear_x_axis_1)):
-    #     clf = SVC(kernel='linear', C=linear_x_axis_1[i])
-    #     clf.fit(train_data_matrix, train_data_label)
-    #     scores = cross_val_score(clf, train_data_matrix, train_data_label, cv=5)
-    #     print("linear kernel, C =", end=" ")
-    #     print(linear_x_axis_1[i], end=" ")
-    #     print(", training accuracy =", end=" ")
-    #     print(mean(scores))
-
-    # linear kernel, C = 0.0033 , training accuracy = 0.9897264432920851 (0.0023-0.0033)
-
-    # linear kernel, C = 0.01 , training accuracy = 0.9897264432920851
-    # linear kernel, C = 0.021111111111111112 , training accuracy = 0.9889562225218643
-    # linear kernel, C = 0.03222222222222222 , training accuracy = 0.9879282723411542 (0.01-0.11) (0.5-2)only give same
-
-    # trial for logistic regression
-    clf = LogisticRegression(random_state=0, solver='newton-cg', multi_class='multinomial').fit(train_data_matrix,train_data_label)
-
+    # clf = SVC(kernel='linear', C=0.001)
+    # clf.fit(train_data_matrix, train_data_label)
     # scores = cross_val_score(clf, train_data_matrix, train_data_label, cv=5)
-    # print("logistic regression, ")
+    # print("linear kernel, C =", end=" ")
+    # print(0.001, end=" ")
     # print(", training accuracy =", end=" ")
     # print(mean(scores))
-
-    # with n_jobs, 10:49-10:53, while w/o it, 10:54-10:58
-
-    # sag : acc is around 0.987
-    # saga : acc is around 0.971
-    # liblinear : acc is around (why one-vs-rest is not used by machine?)
-    # newton-cg : acc is around 0.991  (, training accuracy = 0.9907530726231454) !!!!!!!!!
-    # lbfgs : acc is around 0.990  (, training accuracy = 0.9902382746500675) !!!!!!!!!
-
-    # with traditional chinese dict,
-    # newton-cg : (, training accuracy = 0.9917793711055457)
-    # saga : acc is around 0.974
-    # lbfgs : (, training accuracy = 0.991266552288296)
-
-    y_hat = clf.predict(test_data_matrix)
 
     sub_df = pd.DataFrame()
     sub_df["id"] = test_id_list
